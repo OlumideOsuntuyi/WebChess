@@ -23,11 +23,24 @@ function createBoard() {
             square.dataset.row = i;
             square.dataset.col = j;
             if (initialBoard[i][j] !== '.') {
-                square.textContent = pieces[initialBoard[i][j]];
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.textContent = pieces[initialBoard[i][j]];
+                piece.draggable = true;
+                piece.addEventListener('dragstart', dragStart);
+                piece.addEventListener('dragend', dragEnd);
+                square.appendChild(piece);
             }
+            square.addEventListener('dragover', dragOver);
+            square.addEventListener('drop', drop);
             chessboard.appendChild(square);
         }
     }
 }
 
 createBoard();
+let board = new Board();
+board.initialize();
+board.loadStartPosition();
+
+console.log(board.CurrentFEN);
