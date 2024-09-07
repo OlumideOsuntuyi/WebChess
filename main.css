@@ -12,27 +12,77 @@ body {
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
     gap: 0;
-    border: 2px solid #333;
+    border: 5px solid #333;
+    border-radius: 5px;
 }
 
 .square {
-    width: 60px;
-    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 2em;
+
+    border: solid;
+    border-width: 4px;
+    border-color: rgb(0, 0, 0, 0);
+
+    transition: border-color 1s ease;
 }
 
-.white {
-    background-color: #fff;
+
+.square.white {
+    background-color: #8ca464;
+    color: rgb(0, 0, 0);
 }
 
-.black {
-    background-color: #000;
+.square.black 
+{
+    background-color: #434a3a;
     color: #fff;
 }
 
-.piece {
+.piece
+{
     cursor: grab;
+    transition: text-shadow 0.5s ease;
+}
+
+.piece.black
+{
+    color:black;
+}
+
+.piece.white
+{
+    color:white;
+}
+
+.piece.selected
+{
+    text-shadow: cyan;
+    transition: text-shadow 0.5s ease;
+}
+
+.square.selected
+{
+    border-color: rgb(8, 184, 197);
+    transition: border-color 1s ease;
+}
+
+.piece.targeted
+{
+    text-shadow: cyan;
+    transition: text-shadow ease;
+}
+
+.square.targeted
+{
+    border-color: rgb(255, 72, 0);
+    transition: border-color 1s ease;
+}
+
+.square.targetable
+{
+    border-color: rgb(204, 207, 5);
+    transition: border-color 1s ease;
 }

@@ -79,7 +79,7 @@ class Piece
 
     static pieceValue(piece)
     {
-        const type = PieceType(piece);
+        const type = Piece.pieceType(piece);
         return type == Piece.Pawn ? 1 :
             type == Piece.Knight ? 3 :
             type == Piece.Bishop ? 3 :
@@ -90,17 +90,16 @@ class Piece
 
     static getSymbol(piece) 
     {
-        const pieceType = PieceType(piece);
-        const isWhite = IsWhite(piece);
-        const symbols = {
-            'Rook': 'R',
-            'Knight': 'N',
-            'Bishop': 'B',
-            'Queen': 'Q',
-            'King': 'K',
-            'Pawn': 'P'
-        };
-        let symbol = symbols[pieceType] || ' ';
+        const type = Piece.pieceType(piece);
+        const isWhite = Piece.isWhite(piece);
+        let symbolStr = type == Piece.Pawn ? 'P' :
+            type == Piece.Knight ? 'N' :
+            type == Piece.Bishop ? 'B' :
+            type == Piece.Rook ? 'R' :
+            type == Piece.Queen ? 'Q' :
+            type == Piece.King ? 'K': '';
+
+        let symbol = symbolStr || ' ';
         return isWhite ? symbol : symbol.toLowerCase();
     }
 }
@@ -110,12 +109,12 @@ class PieceList
 {
     constructor(maxPieceCount)
     {
-        this.occupiedSquares = [];
-        this.map = [];
+        this.occupiedSquares = new Array(maxPieceCount).fill(0);
+        this.map = new Array(64).fill(0);
         this.numPieces = 0;
     }
 
-    maxCount()
+    get maxCount()
     {
         return numPieces;
     }
@@ -150,4 +149,3 @@ class PieceList
     }
 
 }
-

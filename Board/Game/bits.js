@@ -110,11 +110,15 @@ class BoardHelper {
     }
 
     static LightSquare(fileIndex, rankIndex) {
+        if(typeof rankIndex == 'undefined')
+        {
+            return (BoardHelper.FileIndex(squareIndex) + BoardHelper.RankIndex(squareIndex)) & 2 !== 0;
+        }
+
         return (fileIndex + rankIndex) % 2 !== 0;
     }
 
     static LightSquare(squareIndex) {
-        return BoardHelper.LightSquare(BoardHelper.FileIndex(squareIndex), BoardHelper.RankIndex(squareIndex));
     }
 
     static SquareNameFromCoordinate(fileIndex, rankIndex) {
@@ -122,10 +126,10 @@ class BoardHelper {
     }
 
     static SquareNameFromIndex(squareIndex) {
-        return BoardHelper.SquareNameFromCoordinate(BoardHelper.CoordFromIndex(squareIndex));
+        return BoardHelper.SquareNameFromCoords(BoardHelper.CoordFromIndex(squareIndex));
     }
 
-    static SquareNameFromCoordinate(coord) {
+    static SquareNameFromCoords(coord) {
         return BoardHelper.SquareNameFromCoordinate(coord.fileIndex, coord.rankIndex);
     }
 
@@ -287,29 +291,44 @@ class BitBoardUtility
         }
     }
 
-    static PopLSB(bitboard) {
-        const i = BigInt.asIntN(64, bitboard & -bitboard);
-        bitboard &= (bitboard - 1n);
+    static trailingZeroCount(value) 
+    {
+        if (value === 0n) {
+            return 64; // No set bits, so return the bit width
+        }
+    
+        let count = 0;
+        while ((value & 1n) === 0n) {
+            count++;
+            value >>= 1n;
+        }
+        return count;
+    }
+    
+    static PopLSB(reference) 
+    {
+        let i = BitBoardUtility.trailingZeroCount(reference.value);
+        reference.value &= (reference.value - 1n);
         return i;
     }
 
-    static setSquare(bitboard, squareIndex) {
+    static SetSquare(bitboard = 0n, squareIndex) {
         return bitboard | (1n << BigInt(squareIndex));
     }
 
-    static ClearSquare(bitboard, squareIndex) {
+    static ClearSquare(bitboard = 0n, squareIndex) {
         return bitboard & ~(1n << BigInt(squareIndex));
     }
 
-    static ToggleSquare(bitboard, squareIndex) {
+    static ToggleSquare(bitboard = 0n, squareIndex) {
         return bitboard ^ (1n << BigInt(squareIndex));
     }
 
-    static ToggleSquares(bitboard, squareA, squareB) {
+    static ToggleSquares(bitboard = 0n, squareA, squareB) {
         return bitboard ^ ((1n << BigInt(squareA)) | (1n << BigInt(squareB)));
     }
 
-    static ContainsSquare(bitboard, square) {
+    static ContainsSquare(bitboard = 0n, square) {
         return ((bitboard >> BigInt(square)) & 1n) !== 0n;
     }
 
@@ -751,8 +770,8 @@ class PrecomputedMoveData {
     static OrthogonalDistance = Array(64).fill(null).map(() => Array(64).fill(0));
     static kingDistance = Array(64).fill(null).map(() => Array(64).fill(0));
     static CentreManhattanDistance = Array(64).fill(0);
-    static alignMask = Array(64).fill(null).map(() => Array(64).fill(0));
-    static dirRayMask = Array(8).fill(null).map(() => Array(64).fill(0));
+    static alignMask = Array(64).fill(null).map(() => Array(64).fill(0n));
+    static dirRayMask = Array(8).fill(null).map(() => Array(64).fill(0n));
 
     static NumRookMovesToReachSquare(startSquare, targetSquare) {
         return this.OrthogonalDistance[startSquare][targetSquare];
@@ -979,7 +998,7 @@ class MagicHelper {
                 let nextCoord = startCoord.add(dir.multiply(dst + 1));
 
                 if (nextCoord.isValidSquare()) {
-                    BitBoardUtility.setSquare(mask, coord.squareIndex);
+                    mask = BitBoardUtility.SetSquare(mask, coord.squareIndex);
                 } else {
                     break;
                 }
@@ -999,7 +1018,7 @@ class MagicHelper {
                 let coord = startCoord.add(dir.multiply(dst));
 
                 if (coord.isValidSquare()) {
-                    BitBoardUtility.setSquare(bitboard, coord.squareIndex);
+                    bitboard = BitBoardUtility.SetSquare(bitboard, coord.squareIndex);
                     if (BitBoardUtility.ContainsSquare(blockerBitboard, coord.squareIndex)) {
                         break;
                     }
@@ -1028,12 +1047,12 @@ class Magic {
     }
 
     static GetRookAttacks(square, blockers) {
-        let key = ((blockers & this.RookMask[square]) * PrecomputedMagics.RookMagics[square]) >> PrecomputedMagics.RookShifts[square];
+        let key = ((blockers & this.RookMask[square]) * PrecomputedMagics.RookMagics[square]) >> BigInt(PrecomputedMagics.RookShifts[square]);
         return this.RookAttacks[square][key];
     }
 
     static GetBishopAttacks(square, blockers) {
-        let key = ((blockers & this.BishopMask[square]) * PrecomputedMagics.BishopMagics[square]) >> PrecomputedMagics.BishopShifts[square];
+        let key = ((blockers & this.BishopMask[square]) * PrecomputedMagics.BishopMagics[square]) >> BigInt(PrecomputedMagics.BishopShifts[square]);
         return this.BishopAttacks[square][key];
     }
 
@@ -1068,4 +1087,55 @@ class Magic {
 }
 
 Magic.initialize();
+
+class Stack {
+    constructor() {
+        this.items = [];
+    }
+
+    // Add an element to the stack
+    push(element) {
+        this.items.push(element);
+    }
+
+    // Remove and return the top element from the stack
+    pop() {
+        if (this.isEmpty()) {
+            return 'Underflow';
+        }
+        return this.items.pop();
+    }
+
+    // Return the top element without removing it
+    peek() {
+        if (this.isEmpty()) {
+            return 'No elements in Stack';
+        }
+        return this.items[this.items.length - 1];
+    }
+
+    // Check if the stack is empty
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    // Return the size of the stack
+    size() {
+        return this.items.length;
+    }
+
+    // Print the elements in the stack
+    printStack() {
+        let str = '';
+        for (let i = 0; i < this.items.length; i++) {
+            str += this.items[i] + ' ';
+        }
+        return str;
+    }
+
+    // Clear the stack
+    clear() {
+        this.items = [];
+    }
+}
 
