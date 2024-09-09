@@ -774,11 +774,11 @@ class PrecomputedMoveData {
     static dirRayMask = Array(8).fill(null).map(() => Array(64).fill(0n));
 
     static NumRookMovesToReachSquare(startSquare, targetSquare) {
-        return this.OrthogonalDistance[startSquare][targetSquare];
+        return PrecomputedMoveData.OrthogonalDistance[startSquare][targetSquare];
     }
 
     static NumKingMovesToReachSquare(startSquare, targetSquare) {
-        return this.kingDistance[startSquare][targetSquare];
+        return PrecomputedMoveData.kingDistance[startSquare][targetSquare];
     }
 
     static{
@@ -792,84 +792,84 @@ class PrecomputedMoveData {
             let south = y;
             let west = x;
             let east = 7 - x;
-            this.numSquaresToEdge[squareIndex] = [north, south, west, east, Math.min(north, west), Math.min(south, east), Math.min(north, east), Math.min(south, west)];
+            PrecomputedMoveData.numSquaresToEdge[squareIndex] = [north, south, west, east, Math.min(north, west), Math.min(south, east), Math.min(north, east), Math.min(south, west)];
 
             // Calculate knight moves
-            this.knightMoveList = [];
+            let knightMoveList = [];
             for (let i = 0; i < allKnightJumps.length; i++) {
                 let targetX = x + allKnightJumps[i] % 8;
                 let targetY = y + Math.floor(allKnightJumps[i] / 8);
                 if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8) {
                     let targetSquare = targetY * 8 + targetX;
-                    this.knightMoveList.push(targetSquare);
-                    this.knightAttackBitboards[squareIndex] |= 1n << BigInt(targetSquare);
+                    knightMoveList.push(targetSquare);
+                    PrecomputedMoveData.knightAttackBitboards[squareIndex] |= 1n << BigInt(targetSquare);
                 }
             }
-            this.knightMoves[squareIndex] = this.knightMoveList;
+            PrecomputedMoveData.knightMoves[squareIndex] = PrecomputedMoveData.knightMoveList;
 
             // Calculate king moves
-            this.kingMoveList = [];
-            for (let i = 0; i < this.dirOffsets2D.length; i++) {
-                let targetX = x + this.dirOffsets2D[i].x;
-                let targetY = y + this.dirOffsets2D[i].y;
+            let kingMoveList = [];
+            for (let i = 0; i < PrecomputedMoveData.dirOffsets2D.length; i++) {
+                let targetX = x + PrecomputedMoveData.dirOffsets2D[i].x;
+                let targetY = y + PrecomputedMoveData.dirOffsets2D[i].y;
                 if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8) {
                     let targetSquare = targetY * 8 + targetX;
-                    this.kingMoveList.push(targetSquare);
-                    this.kingAttackBitboards[squareIndex] |= 1n << BigInt(targetSquare);
+                    kingMoveList.push(targetSquare);
+                    PrecomputedMoveData.kingAttackBitboards[squareIndex] |= 1n << BigInt(targetSquare);
                 }
             }
-            this.kingMoves[squareIndex] = this.kingMoveList;
+            PrecomputedMoveData.kingMoves[squareIndex] = kingMoveList;
 
             // Calculate pawn attacks
-            this.pawnAttacksWhiteList = [];
-            this.pawnAttacksBlackList = [];
-            for (let i = 0; i < this.pawnAttackDirections[0].length; i++) {
-                let targetX = x + this.dirOffsets2D[this.pawnAttackDirections[0][i]].x;
-                let targetY = y + this.dirOffsets2D[this.pawnAttackDirections[0][i]].y;
+            let pawnAttacksWhiteList = [];
+            let pawnAttacksBlackList = [];
+            for (let i = 0; i < PrecomputedMoveData.pawnAttackDirections[0].length; i++) {
+                let targetX = x + PrecomputedMoveData.dirOffsets2D[PrecomputedMoveData.pawnAttackDirections[0][i]].x;
+                let targetY = y + PrecomputedMoveData.dirOffsets2D[PrecomputedMoveData.pawnAttackDirections[0][i]].y;
                 if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8) {
                     let targetSquare = targetY * 8 + targetX;
-                    this.pawnAttacksWhiteList.push(targetSquare);
-                    this.pawnAttackBitboards[squareIndex][0] |= 1n << BigInt(targetSquare);
+                    pawnAttacksWhiteList.push(targetSquare);
+                    PrecomputedMoveData.pawnAttackBitboards[squareIndex][0] |= 1n << BigInt(targetSquare);
                 }
-                targetX = x + this.dirOffsets2D[this.pawnAttackDirections[1][i]].x;
-                targetY = y + this.dirOffsets2D[this.pawnAttackDirections[1][i]].y;
+                targetX = x + PrecomputedMoveData.dirOffsets2D[PrecomputedMoveData.pawnAttackDirections[1][i]].x;
+                targetY = y + PrecomputedMoveData.dirOffsets2D[PrecomputedMoveData.pawnAttackDirections[1][i]].y;
                 if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8) {
                     let targetSquare = targetY * 8 + targetX;
-                    this.pawnAttacksBlackList.push(targetSquare);
-                    this.pawnAttackBitboards[squareIndex][1] |= 1n << BigInt(targetSquare);
+                    pawnAttacksBlackList.push(targetSquare);
+                    PrecomputedMoveData.pawnAttackBitboards[squareIndex][1] |= 1n << BigInt(targetSquare);
                 }
             }
-            this.pawnAttacksWhite[squareIndex] = this.pawnAttacksWhiteList;
-            this.pawnAttacksBlack[squareIndex] = this.pawnAttacksBlackList;
+            PrecomputedMoveData.pawnAttacksWhite[squareIndex] = pawnAttacksWhiteList;
+            PrecomputedMoveData.pawnAttacksBlack[squareIndex] = pawnAttacksBlackList;
         }
 
         // Calculate rook moves
         for (let squareIndex = 0; squareIndex < 64; squareIndex++) {
-            this.rookMoves[squareIndex] = 0n;
+            PrecomputedMoveData.rookMoves[squareIndex] = 0n;
             for (let dir = 0; dir < 4; dir++) {
                 let currentSquare = squareIndex;
-                for (let n = 0; n < this.numSquaresToEdge[squareIndex][dir]; n++) {
-                    currentSquare += this.directionOffsets[dir];
-                    this.rookMoves[squareIndex] |= 1n << BigInt(currentSquare);
+                for (let n = 0; n < PrecomputedMoveData.numSquaresToEdge[squareIndex][dir]; n++) {
+                    currentSquare += PrecomputedMoveData.directionOffsets[dir];
+                    PrecomputedMoveData.rookMoves[squareIndex] |= 1n << BigInt(currentSquare);
                 }
             }
         }
 
         // Calculate bishop moves
         for (let squareIndex = 0; squareIndex < 64; squareIndex++) {
-            this.bishopMoves[squareIndex] = 0n;
+            PrecomputedMoveData.bishopMoves[squareIndex] = 0n;
             for (let dir = 4; dir < 8; dir++) {
                 let currentSquare = squareIndex;
-                for (let n = 0; n < this.numSquaresToEdge[squareIndex][dir]; n++) {
-                    currentSquare += this.directionOffsets[dir];
-                    this.bishopMoves[squareIndex] |= 1n << BigInt(currentSquare);
+                for (let n = 0; n < PrecomputedMoveData.numSquaresToEdge[squareIndex][dir]; n++) {
+                    currentSquare += PrecomputedMoveData.directionOffsets[dir];
+                    PrecomputedMoveData.bishopMoves[squareIndex] |= 1n << BigInt(currentSquare);
                 }
             }
         }
 
         // Calculate queen moves (combination of rook and bishop moves)
         for (let squareIndex = 0; squareIndex < 64; squareIndex++) {
-            this.queenMoves[squareIndex] = this.rookMoves[squareIndex] | this.bishopMoves[squareIndex];
+            PrecomputedMoveData.queenMoves[squareIndex] = PrecomputedMoveData.rookMoves[squareIndex] | PrecomputedMoveData.bishopMoves[squareIndex];
         }
 
         // Calculate orthogonal and king distances
@@ -877,8 +877,8 @@ class PrecomputedMoveData {
             for (let squareB = 0; squareB < 64; squareB++) {
                 let xDistance = Math.abs((squareA % 8) - (squareB % 8));
                 let yDistance = Math.abs(Math.floor(squareA / 8) - Math.floor(squareB / 8));
-                this.OrthogonalDistance[squareA][squareB] = xDistance + yDistance;
-                this.kingDistance[squareA][squareB] = Math.max(xDistance, yDistance);
+                PrecomputedMoveData.OrthogonalDistance[squareA][squareB] = xDistance + yDistance;
+                PrecomputedMoveData.kingDistance[squareA][squareB] = Math.max(xDistance, yDistance);
             }
         }
 
@@ -886,7 +886,7 @@ class PrecomputedMoveData {
         for (let squareIndex = 0; squareIndex < 64; squareIndex++) {
             let xDistance = Math.abs((squareIndex % 8) - 3);
             let yDistance = Math.abs(Math.floor(squareIndex / 8) - 3);
-            this.CentreManhattanDistance[squareIndex] = xDistance + yDistance;
+            PrecomputedMoveData.CentreManhattanDistance[squareIndex] = xDistance + yDistance;
         }
 
         // Direction lookup
@@ -901,30 +901,30 @@ class PrecomputedMoveData {
             } else if (absOffset % 7 === 0) {
                 absDir = 7;
             }
-            this.directionLookup[i] = absDir * Math.sign(offset);
+            PrecomputedMoveData.directionLookup[i] = absDir * Math.sign(offset);
         }
 
         // align mask and dir-ray-mask
-        this.OrthogonalDistance = Array(64).fill(null).map(() => Array(64).fill(0));
-        this.kingDistance = Array(64).fill(null).map(() => Array(64).fill(0));
-        this.CentreManhattanDistance = Array(64).fill(0);
+        PrecomputedMoveData.OrthogonalDistance = Array(64).fill(null).map(() => Array(64).fill(0));
+        PrecomputedMoveData.kingDistance = Array(64).fill(null).map(() => Array(64).fill(0));
+        PrecomputedMoveData.CentreManhattanDistance = Array(64).fill(0);
 
         for (let squareA = 0; squareA < 64; squareA++) {
             let coordA = BoardHelper.CoordFromIndex(squareA);
             let fileDstFromCentre = Math.max(3 - coordA.fileIndex, coordA.fileIndex - 4);
             let rankDstFromCentre = Math.max(3 - coordA.rankIndex, coordA.rankIndex - 4);
-            this.CentreManhattanDistance[squareA] = fileDstFromCentre + rankDstFromCentre;
+            PrecomputedMoveData.CentreManhattanDistance[squareA] = fileDstFromCentre + rankDstFromCentre;
         
             for (let squareB = 0; squareB < 64; squareB++) {
                 let coordB = BoardHelper.CoordFromIndex(squareB);
                 let rankDistance = Math.abs(coordA.rankIndex - coordB.rankIndex);
                 let fileDistance = Math.abs(coordA.fileIndex - coordB.fileIndex);
-                this.OrthogonalDistance[squareA][squareB] = fileDistance + rankDistance;
-                this.kingDistance[squareA][squareB] = Math.max(fileDistance, rankDistance);
+                PrecomputedMoveData.OrthogonalDistance[squareA][squareB] = fileDistance + rankDistance;
+                PrecomputedMoveData.kingDistance[squareA][squareB] = Math.max(fileDistance, rankDistance);
             }
         }
         
-        this.alignMask = Array(64).fill(null).map(() => Array(64).fill(0n));
+        PrecomputedMoveData.alignMask = Array(64).fill(null).map(() => Array(64).fill(0n));
         for (let squareA = 0; squareA < 64; squareA++) {
             for (let squareB = 0; squareB < 64; squareB++) {
                 let cA = BoardHelper.CoordFromIndex(squareA);
@@ -937,28 +937,30 @@ class PrecomputedMoveData {
                     coord.fileIndex += dir.fileIndex * i;
                     coord.rankIndex += dir.rankIndex * i;
                     if (coord.isValidSquare()) {
-                        this.alignMask[squareA][squareB] |= 1n << BigInt(BoardHelper.IndexFromCoord(coord));
+                        PrecomputedMoveData.alignMask[squareA][squareB] |= 1n << BigInt(BoardHelper.IndexFromCoord(coord));
                     }
                 }
             }
         }
         
-        this.dirRayMask = Array(8).fill(null).map(() => Array(64).fill(0n));
+        PrecomputedMoveData.dirRayMask = Array(8).fill(null).map(() => Array(64).fill(0n));
         for (let dirIndex = 0; dirIndex < PrecomputedMoveData.dirOffsets2D.length; dirIndex++) {
             for (let squareIndex = 0; squareIndex < 64; squareIndex++) {
                 let square = BoardHelper.CoordFromIndex(squareIndex);
         
                 for (let i = 0; i < 8; i++) {
-                    let coord = new Coord(square.fileIndex + PrecomputedMoveData.dirOffsets2D[dirIndex].fileIndex * i, 
-                        square.rankIndex + PrecomputedMoveData.dirOffsets2D[dirIndex].rankIndex * i );
+                    let coord = new Coord(square.fileIndex + PrecomputedMoveData.dirOffsets2D[dirIndex].x * i, 
+                        square.rankIndex + PrecomputedMoveData.dirOffsets2D[dirIndex].y * i );
                     if (coord.isValidSquare()) {
-                        this.dirRayMask[dirIndex][squareIndex] |= 1n << BigInt(BoardHelper.IndexFromCoord(coord));
+                        PrecomputedMoveData.dirRayMask[dirIndex][squareIndex] |= 1n << BigInt(BoardHelper.IndexFromCoord(coord));
                     } else {
                         break;
                     }
                 }
             }
         }
+        
+        console.log(PrecomputedMoveData.dirRayMask);
     }
 }
 
