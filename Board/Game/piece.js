@@ -67,13 +67,13 @@ class Piece
 
     static isOrthagonalSlider(piece)
     {
-        const p = PieceType(piece);
+        let p = Piece.pieceType(piece);
         return p == Piece.Queen || p == Piece.Rook;
     }
 
     static isDiagonalSlider(piece)
     {
-        const p = PieceType(piece);
+        let p = Piece.pieceType(piece);
         return p == Piece.Queen || p == Piece.Bishop;
     }
 
