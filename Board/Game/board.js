@@ -595,13 +595,13 @@ class Board
         let blockers = this.AllPiecesBitboard;
 
         if (this.EnemyOrthogonalSliders !== 0n) {
-            let rookAttacks = Magic.getRookAttacks(kingSquare, blockers);
+            let rookAttacks = Magic.GetRookAttacks(kingSquare, blockers);
             if ((rookAttacks & this.EnemyOrthogonalSliders) !== 0n) {
                 return true;
             }
         }
         if (this.EnemyDiagonalSliders !== 0n) {
-            let bishopAttacks = Magic.getBishopAttacks(kingSquare, blockers);
+            let bishopAttacks = Magic.GetBishopAttacks(kingSquare, blockers);
             if ((bishopAttacks & this.EnemyDiagonalSliders) !== 0n) {
                 return true;
             }
