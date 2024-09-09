@@ -195,7 +195,7 @@ class MoveGenerator
             // If piece is pinned, it can only move along the pin ray
             if (this.IsPinned(startSquare))
             {
-                moveSquares &= PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare];
+                moveSquares &= PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare];
             }
 
             while (moveSquares != 0n)
@@ -221,7 +221,7 @@ class MoveGenerator
             // If piece is pinned, it can only move along the pin ray
             if (this.IsPinned(startSquare))
             {
-                moveSquares &= PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare];
+                moveSquares &= PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare];
             }
 
             while (moveSquares != 0n)
@@ -299,7 +299,7 @@ class MoveGenerator
                 let startSquare = targetSquare - pushOffset;
                 singlePushNoPromotions = singlePushNoPromotionsReference.value;
 
-                if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.currMoveIndexfriendlyKingSquare])
+                if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.currMoveIndexfriendlyKingSquare])
                 {
                     moves[this.currMoveIndex++] = new Move(startSquare, targetSquare);
                 }
@@ -316,7 +316,7 @@ class MoveGenerator
                 let startSquare = targetSquare - pushOffset * 2;
                 doublePush = doublePushReference.value;
 
-                if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+                if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
                 {
                     moves[this.currMoveIndex++] = new Move(startSquare, targetSquare, Move.PawnTwoUpFlag);
                 }
@@ -332,7 +332,7 @@ class MoveGenerator
 
             captureA = captureAReference.value;
 
-            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
             {
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare);
             }
@@ -346,7 +346,7 @@ class MoveGenerator
 
             captureB = captureBReference.value;
 
-            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
             {
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare);
             }
@@ -377,7 +377,7 @@ class MoveGenerator
 
             capturePromotionsA = capturePromotionsAReference.value;
 
-            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
             {
                 this.GeneratePromotions(startSquare, targetSquare, moves);
             }
@@ -391,7 +391,7 @@ class MoveGenerator
 
             capturePromotionsB = capturePromotionsBReference.value;
 
-            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+            if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
             {
                 this.GeneratePromotions(startSquare, targetSquare, moves);
             }
@@ -415,7 +415,7 @@ class MoveGenerator
                     let startSquare = BitBoardUtility.PopLSB(pawnsThatCanCaptureEpReference);
                     pawnsThatCanCaptureEp = pawnsThatCanCaptureEpReference.value;
 
-                    if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare, this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare, this.friendlyKingSquare])
+                    if (!this.IsPinned(startSquare) || PrecomputedMoveData.alignMask[startSquare][this.friendlyKingSquare] == PrecomputedMoveData.alignMask[targetSquare][this.friendlyKingSquare])
                     {
                         if (!this.InCheckAfterEnPassant(startSquare, targetSquare, capturedPawnSquare))
                         {
@@ -501,12 +501,12 @@ class MoveGenerator
             let n = PrecomputedMoveData.numSquaresToEdge[this.friendlyKingSquare][dir];
             let directionOffset = PrecomputedMoveData.directionOffsets[dir];
             let isFriendlyPieceAlongRay = false;
-            let rayMask = 0;
+            let rayMask = 0n;
 
             for (let i = 0; i < n; i++)
             {
-                let squareIndex = friendlyKingSquare + directionOffset * (i + 1);
-                rayMask |= 1n << squareIndex;
+                let squareIndex = this.friendlyKingSquare + directionOffset * (i + 1);
+                rayMask |= 1n << BigInt(squareIndex);
                 let piece = this.board.Square[squareIndex];
 
                 // This square contains a piece

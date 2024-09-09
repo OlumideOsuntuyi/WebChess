@@ -46,7 +46,7 @@ function loop()
     
     moves = generator.GenerateMoves(board);
     moveLength = generator.currMoveIndex;
-
+    console.log(generator);
     boardSync.update();
 }
 
