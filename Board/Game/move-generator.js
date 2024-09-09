@@ -433,13 +433,13 @@ class MoveGenerator
         // Don't generate non-queen promotions in q-search
         if (this.generateQuietMoves)
         {
-            if (this.promotionsToGenerate == MoveGenerator.PromotionMode.All)
+            if (this.promotionsToGenerate == PromotionMode.All)
             {
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare, Move.PromoteToKnightFlag);
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare, Move.PromoteToRookFlag);
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare, Move.PromoteToBishopFlag);
             }
-            else if (this.promotionsToGenerate == MoveGenerator.PromotionMode.QueenAndKnight)
+            else if (this.promotionsToGenerate == PromotionMode.QueenAndKnight)
             {
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare, Move.PromoteToKnightFlag);
             }
