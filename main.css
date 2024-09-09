@@ -7,7 +7,15 @@ body {
     background-color: #f0f0f0;
 }
 
+#gameArea
+{
+    position: relative;
+    width: 480px;
+    height: 480px;
+}
+
 #chessboard {
+    position: absolute;
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
@@ -41,21 +49,51 @@ body {
     color: #fff;
 }
 
+.piece:hover
+{
+    width: 60px;
+    height: 60px;
+    box-shadow: cyan;
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
 .piece
 {
     cursor: grab;
-    transition: text-shadow 0.5s ease;
+    width: 50px;
+    height: 50px;
+    position: fixed;
+    z-index: 1000;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    transition: text-shadow 0.5s ease, width 0.25s ease, height 0.25s ease;
 }
 
 .piece.black
 {
-    color:black;
+    color:rgba(0, 0, 0, 0);
 }
 
 .piece.white
 {
-    color:white;
+    color:rgba(255, 255, 255, 0);
 }
+
+.piece.K { background-image: url('Resources/Pieces/w_king_png_shadow_128px.png'); }
+.piece.Q { background-image: url('Resources/Pieces/w_queen_png_shadow_128px.png'); }
+.piece.R { background-image: url('Resources/Pieces/w_rook_png_shadow_128px.png'); }
+.piece.B { background-image: url('Resources/Pieces/w_bishop_png_shadow_128px.png'); }
+.piece.N { background-image: url('Resources/Pieces/w_knight_png_shadow_128px.png'); }
+.piece.P { background-image: url('Resources/Pieces/w_pawn_png_shadow_128px.png'); }
+
+.piece.k { background-image: url('Resources/Pieces/b_king_png_shadow_128px.png'); }
+.piece.q { background-image: url('Resources/Pieces/b_queen_png_shadow_128px.png'); }
+.piece.r { background-image: url('Resources/Pieces/b_rook_png_shadow_128px.png'); }
+.piece.b { background-image: url('Resources/Pieces/b_bishop_png_shadow_128px.png'); }
+.piece.n { background-image: url('Resources/Pieces/b_knight_png_shadow_128px.png'); }
+.piece.p { background-image: url('Resources/Pieces/b_pawn_png_shadow_128px.png'); }
 
 .piece.selected
 {

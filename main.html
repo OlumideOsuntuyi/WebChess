@@ -7,13 +7,24 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <div id="chessboard"></div>
+    <div id="gameArea">
+        <div id="chessboard"></div>
+    </div>
+
+    <script src="GameEngine/math.js"></script>
+    <script src="GameEngine/engine.js"></script>
+    <script src="GameEngine/object.js"></script>
+    <script src="GameEngine/input.js"></script>
+
+
     <script src="Board/Game/piece.js"></script>
     <script src="Board/Game/bits.js"></script>
     <script src="Board/Game/board.js"></script>
     <script src="Board/Game/move-generator.js"></script>
-    <script src="Board/Inputs/dragInputs.js"></script>
     <script src="Board/Game/gameplay.js"></script>
+    <script src="Board/Inputs/dragInputs.js"></script>
+    <script src="Board/Displays/chessboard.js"></script>
+    <script src="Board/Displays/audio.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

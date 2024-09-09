@@ -226,7 +226,7 @@ class MoveGenerator
 
             while (moveSquares != 0n)
             {
-                moveSquaresReference = new(moveSquares);
+                let moveSquaresReference = new Reference(moveSquares);
                 let targetSquare = BitBoardUtility.PopLSB(moveSquaresReference);
                 moves[this.currMoveIndex++] = new Move(startSquare, targetSquare);
                 moveSquares = moveSquaresReference.value;
@@ -536,12 +536,12 @@ class MoveGenerator
                             // Friendly piece blocks the check, so this is a pin
                             if (isFriendlyPieceAlongRay)
                             {
-                                this.pinRays |= rayMask;
+                                this.pinRays |= BigInt(rayMask);
                             }
                             // No friendly piece blocking the attack, so this is a check
                             else
                             {
-                                this.checkRayBitmask |= rayMask;
+                                this.checkRayBitmask |= BigInt(rayMask);
                                 this.inDoubleCheck = this.inCheck; // if already in check, then this is double check
                                 this.inCheck = true;
                             }
@@ -581,7 +581,7 @@ class MoveGenerator
             {
                 this.inDoubleCheck = this.inCheck;
                 this.inCheck = true;
-                this.checkRayBitmask |= 1n << knightSquare;
+                this.checkRayBitmask |= 1n << BigInt(knightSquare);
             }
         }
 
@@ -597,7 +597,7 @@ class MoveGenerator
             this.inCheck = true;
             let possiblePawnAttackOrigins = this.board.IsWhiteToMove ? BitBoardUtility.WhitePawnAttacks[this.friendlyKingSquare] : BitBoardUtility.BlackPawnAttacks[this.friendlyKingSquare];
             let pawnCheckMap = opponentPawnsBoard & possiblePawnAttackOrigins;
-            this.checkRayBitmask |= pawnCheckMap;
+            this.checkRayBitmask |= BigInt(pawnCheckMap);
         }
 
         let enemyKingSquare = this.board.KingSquare[this.enemyIndex];

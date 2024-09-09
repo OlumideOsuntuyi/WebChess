@@ -1,6 +1,6 @@
 function markElement(element, tag)
 {
-    if(!element.classList.contains(tag))
+    if(typeof element != 'undefined' && !element.classList.contains(tag))
     {
         element.classList.add(tag);
     }
@@ -8,9 +8,9 @@ function markElement(element, tag)
 
 function unmarkElement(element, tag)
 {
-    if(element.classList.contains(tag))
+    if(typeof element != 'undefined' && element.classList.contains(tag))
     {
-        element.unmark(tag);
+        element.classList.remove(tag);
     }
 }
 
@@ -30,29 +30,33 @@ function unmarkAll(elements, tag)
     });
 }
 
-
-
 function highlightMovesBasedOnSelected()
 {   
     unmarkAll(SQUARES, 'targetable');
+    unmarkAll(SQUARES, 'movable-square');
+    unmarkAll(SQUARES, 'inCheck');
     
-
-    if(isPieceSelected())
+    let selectedPieceIndex = 0;
+    let pieceSelected = isPieceSelected();
+    if(pieceSelected)
     {
-        let selectedPieceIndex = squareIndex(selectedSquare);
-        for (let index = 0; index < moveLength; index++) 
-        {
-            const move = moves[index];
-            let start = move.StartSquare;
+        selectedPieceIndex = squareIndex(selectedSquare);
+    }
 
-            if(start == selectedPieceIndex)
-            {
-                let target = move.TargetSquare;
-        
-                const targetSquare = SQUARES[target];
-        
-                markElement(targetSquare, 'targetable');
-            }
+    for (let index = 0; index < moveLength; index++) 
+    {
+        const move = moves[index];
+        let start = move.StartSquare;
+        const startSquare = SQUARES[start];
+        markElement(startSquare, 'movable-square');
+
+
+        if(start == selectedPieceIndex && pieceSelected)
+        {
+            let target = move.TargetSquare;
+            const targetSquare = SQUARES[target];
+    
+            markElement(targetSquare, 'targetable');
         }
     }
 }

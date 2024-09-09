@@ -300,7 +300,7 @@ class Board
         // Handle king
         if (movedPieceType == Piece.King)
         {
-            this.KingSquare[MoveColourIndex] = targetSquare;
+            this.KingSquare[this.MoveColourIndex] = targetSquare;
             this.newCastlingRights &= (this.IsWhiteToMove) ? 0b1100 : 0b0011;
     
             // Handle castling
