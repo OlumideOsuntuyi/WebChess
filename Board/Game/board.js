@@ -416,7 +416,7 @@ class Board
         {
             if (!inSearch)
             {
-                // this.RepetitionPositionHistory.clear();
+                this.RepetitionPositionHistory = [];
             }
             newFiftyMoveCounter = 0;
         }

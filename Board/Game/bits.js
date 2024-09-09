@@ -959,8 +959,6 @@ class PrecomputedMoveData {
                 }
             }
         }
-        
-        console.log(PrecomputedMoveData.dirRayMask);
     }
 }
 

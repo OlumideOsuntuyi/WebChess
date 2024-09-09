@@ -120,9 +120,9 @@ function onTargetedMoveFromMove(move = new Move())
     onTargetedIndexMove(move.StartSquare, move.TargetSquare);
 }
 
-function onTargetedIndexMove(pieceIndex, squareIndex)
+function onTargetedIndexMove(start, end)
 {
-    onTargetedMove(pieceFromIndex(pieceIndex), squareFromIndex(squareIndex));
+    onTargetedMove(squareFromIndex(start), squareFromIndex(end));
 }
 
 function onTargetedMove(sourceSquare, targetSquare)

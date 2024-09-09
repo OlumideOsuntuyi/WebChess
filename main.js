@@ -43,11 +43,14 @@ let moveLength = 0;
 function loop()
 {
     let generator = new MoveGenerator();
-    
     moves = generator.GenerateMoves(board);
     moveLength = generator.currMoveIndex;
-    console.log(generator);
     boardSync.update();
+
+    if(!board.IsWhiteToMove && moveLength > 0)
+    {
+        onTargetedMoveFromMove(moves[JSMath.RandomRange(0, moveLength - 1)]);
+    }
 }
 
 
