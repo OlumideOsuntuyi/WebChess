@@ -531,7 +531,7 @@ class MoveGenerator
                         let pieceType = Piece.pieceType(piece);
 
                         // Check if piece is in bitmask of pieces able to move in current direction
-                        if (isDiagonal && Piece.isDiagonalSlider(pieceType) || !isDiagonal && Piece.isOrthogonalSlider(pieceType))
+                        if (isDiagonal && Piece.isDiagonalSlider(pieceType) || !isDiagonal && Piece.isOrthagonalSlider(pieceType))
                         {
                             // Friendly piece blocks the check, so this is a pin
                             if (isFriendlyPieceAlongRay)
