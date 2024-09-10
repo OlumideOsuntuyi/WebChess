@@ -171,6 +171,9 @@ class Move
         return a.moveValue == b.moveValue;
     }
 
+    static getPosition(index = 0) {
+        return String.fromCharCode(97 + (index % 8)) + (8 - Math.floor(index / 8));
+    }
     get UCI()
     {
         return BoardHelper.SquareNameFromIndex(this.StartSquare) + BoardHelper.SquareNameFromIndex(this.TargetSquare);

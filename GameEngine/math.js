@@ -5,22 +5,27 @@ class JSVector
         this.x = x; this.y = y;
     }
 
-    set(x, y) {this.x = x; this.y = y;}
+    set(x = 0, y = 0) {this.x = x; this.y = y;}
 
-    addSelf(jsVector) {this.x += jsVector.x; this.y += jsVector.y;}
-    subTractSelf(jsVector){this.x -= jsVector.x; this.y -= jsVector.y;}
+    addSelf(jsVector = new JSVector()) {this.x += jsVector.x; this.y += jsVector.y;}
+    subTractSelf(jsVector = new JSVector()){this.x -= jsVector.x; this.y -= jsVector.y;}
 
-    add(jSVector){return new JSVector(this.x + jSVector.x, this.y + jSVector.y);}
-    subtract(jSVector){return new JSVector(this.x - jSVector.x, this.y - jSVector.y);}
+    add(jSVector = new JSVector()){return new JSVector(this.x + jSVector.x, this.y + jSVector.y);}
+    subtract(jSVector = new JSVector()){return new JSVector(this.x - jSVector.x, this.y - jSVector.y);}
 
-    multiply(float){return new JSVector(this.x * float, this.y * float);}
-    divide(float){return new JSVector(this.x / float, this.y * float);}
+    multiply(float = 0){return new JSVector(this.x * float, this.y * float);}
+    divide(float = 0){return new JSVector(this.x / float, this.y * float);}
 
-    multiplySelf(float){this.x *= float; this.y *= float};
-    divideSelf(float){this.x *= float; this.y *= float};
+    multiplySelf(float = 0){this.x *= float; this.y *= float};
+    divideSelf(float = 0){this.x *= float; this.y *= float};
 
     magnitude() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    equals(jsVector = new JSVector())
+    {
+        return this.x == jsVector.x && this.y == jsVector.y;
     }
 
     normalize() {
@@ -45,11 +50,24 @@ class JSVector
         return new JSVector(this.x, this.y);
     }
 
-    static distance(a, b)
+    static distance(a = new JSVector(), b = new JSVector())
     {
         let dx = a.x - b.x;
         let dy = a.y - b.y;
         return Math.sqrt(dx * dx + dy * dy);
+    }
+}
+
+class JSColor {
+    constructor(r = 0, g = 0, b = 0, a = 1) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    toString() {
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 }
 

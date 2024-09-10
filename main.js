@@ -1,6 +1,6 @@
 const chessboard = document.getElementById('chessboard');
-
 const gameDiv = document.getElementById('gameArea');
+const matchMoves = document.getElementById('match-moves');
 const pieces = {
     'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
     'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
@@ -10,6 +10,9 @@ const SQUARES = document.getElementsByClassName('square');
 const PIECES = document.getElementsByClassName('piece');
 const WHITE_PIECES = document.querySelectorAll('.piece.white');
 const BLACK_PIECES = document.querySelectorAll('.piece.black');
+
+const BOARD_OFFSET = 245;
+const SQUARE_SIZE = 60;
 
 let board = new Board();
 board.loadStartPosition();

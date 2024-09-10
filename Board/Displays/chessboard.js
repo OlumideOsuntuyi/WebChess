@@ -27,7 +27,7 @@ class TilePiece
     create(square, squareName)
     {
         const piece = document.createElement('div');
-        gameDiv.appendChild(piece);
+        chessboard.appendChild(piece);
 
         const pieceID = board.Square[this.currentSquare]; this.pieceID = pieceID;
         const pieceType = Piece.pieceType(pieceID);
@@ -58,6 +58,11 @@ class TilePiece
 
         this.jsObject.transform.localPosition = this.squarePosition;
         this.jsObject.updateElement();
+    }
+
+    resetSquare()
+    {
+        this.jsObject.transform.LocalPosition = Tile.TilePosition(BoardHelper.CoordFromIndex(this.currentSquare));
     }
 
     moveToSquare(square)
@@ -179,21 +184,38 @@ class Tile
         
     }
 
-    static tileSize = new JSVector(60, 60);
-    static tileOffset = new JSVector(250, 250);
+    static get squareWidth()
+    {
+        return Math.max(window.innerWidth * 0.05, 50);
+    }
+
+    static get boardOffset()
+    {
+        return Math.max((window.innerWidth * 0.05 * 4), 200) + Math.max(window.innerWidth * 0.007, 12.5);
+    }
+
+    static get tileSize()
+    {
+        return new JSVector(Tile.squareWidth, Tile.squareWidth);
+    }
+    static get tileOffset()
+    {
+        return new JSVector(Tile.boardOffset, Tile.boardOffset);
+    }
     static TilePosition(coord = new Coord())
     {
         const fileDir = 1;
-        const rankDir = 1;
+        const rankDir = -1;
         let file = -4 + coord.fileIndex;
         let rank = -4 + coord.rankIndex;
-        return new JSVector((Tile.tileSize.x * file * fileDir) + Tile.tileOffset.x, (Tile.tileSize.y * rank * rankDir) + Tile.tileOffset.y);
+        return new JSVector((Tile.tileSize.x * file * fileDir) + Tile.tileOffset.x, (Tile.tileSize.y * rank * rankDir) - Tile.tileOffset.y);
     }
 }
 
 class BoardSync
 {
     ALL_TILES = {};
+    MOVES = [];
 
     constructor(board = new Board())
     {
@@ -223,8 +245,27 @@ class BoardSync
         }
     }
 
+    resetAll()
+    {
+        for (let square = 0; square < 64; square++) 
+        {
+            let tile = this.ALL_TILES[square];
+            tile.piece.resetSquare();
+        }
+    }
+
     move()
     {
+        let moveset;
+        if(!this.board.IsWhiteToMove)
+        {
+            moveset = new MoveSet(this.board.PlyCount);
+            matchMoves.appendChild(moveset.element);
+            this.MOVES.push(moveset.transform);
+        }else{moveset = this.MOVES[this.MOVES.length - 1].jsObject.component;}
+
+        moveset.set(this.board.AllGameMoves[this.board.PlyCount - 1], this.board, this.CurrentFEN);
+
         const movePlayed = this.board.AllGameMoves[this.ply++];
         let start = movePlayed.StartSquare;
         let end = movePlayed.TargetSquare;
@@ -256,5 +297,162 @@ class BoardSync
         {
             GameAudio.playMove();
         }
+
+    }
+}
+
+
+class MoveSet extends JSComponent
+{
+    constructor(ply)
+    {
+        super();
+        this.ply = ply;
+        this.updatedPly = ply - 2;
+        this.jsObject.component = this;
+        this.addElement();
+        let odd = (ply - 1) % 4 == 0;
+        
+        this.element.className = "match-move";
+        this.relativePosition();
+
+        this.index = new JSText(this.ID);
+        this.index.appendToComponent(this);
+        this.index.element.className = 'index';
+        this.index.color = new JSColor(255, 255, 255);
+        this.index.text = `${(Math.floor(ply / 2)) + 1}.`;
+
+
+        let width = 80;
+        let start = 50;
+        this.white = new PlayedMove(this, true, ply);
+        this.white.element.style.marginLeft = `${start}px`;
+
+        this.black = new PlayedMove(this, false, ply + 1);
+    }
+
+    set(move = new Move(), board = new Board(), PGN = "")
+    {
+        if(board.MoveColourIndex != Board.WhiteIndex)
+        {
+            this.white.set(move, board, PGN);
+        }
+        else
+        {
+            this.black.set(move, board, PGN);
+        }
+        matchMoves.scrollTop = matchMoves.scrollHeight;
+    }
+
+    remove(color = 0)
+    {
+        if(color == Board.WhiteIndex)
+        {
+            this.remove(this.white.board.PlyCount);
+        }
+        else
+        {
+            this.remove(this.black.board.PlyCount);
+            this.black.remove();
+        }
+    }
+
+}
+
+class PlayedMove extends JSComponent
+{
+    get element()
+    {
+        return this.jsObject.element;
+    }
+
+    constructor(playedMove = new MoveSet(), isWhite = true, ply = 0)
+    {
+        super();
+        this.isWhite = isWhite;
+        this.ply = ply;
+        this.transform.setParent(playedMove.ID);
+
+        this.addElement();
+        this.element.className = 'matchColor';
+        this.element.classList.add(isWhite ? 'white' : 'black');
+        this.appendToComponent(playedMove);
+        this.relativePosition();
+
+        this.notationObject = new JSText(this.ID);
+        this.notationObject.element.className = 'notation';
+        this.notationObject.element.classList.add('piece');
+        this.notationObject.appendToComponent(this);
+        this.notationObject.transform.setParent(this.ID);
+        this.notationObject.transform.LocalPosition = new JSVector(0, 0);
+        this.notationObject.absolutePosition();
+
+        this.positionObject = new JSText(this.ID);
+        this.positionObject.element.className = 'position';
+        this.positionObject.appendToComponent(this);
+        this.positionObject.transform.setParent(this.ID);
+        this.positionObject.transform.LocalPosition = new JSVector(25, -5);
+        this.positionObject.absolutePosition();
+
+    }
+
+    update()
+    {
+        
+    }
+
+    set(move = new Move(), board = new Board(), PGN = "")
+    {
+        this.move = move;
+        this.PGN = PGN;
+        this.fen = board.CurrentFEN;
+        let flag = move.MoveFlag;
+        let isPromotion = move.IsPromotion();
+        let isCastle = Move.CastleFlag == flag;
+        let isCheck = board.isInCheck();
+        let pieceID = board.Square[move.TargetSquare];
+        let pieceType = Piece.pieceType(pieceID);
+        let piece_symbol = Piece.getSymbol(pieceID);
+        if(pieceType != Piece.Pawn)
+        {
+            this.notationObject.text = "";
+            this.notationObject.element.classList.add(piece_symbol);
+        }
+
+
+        const colors = [new JSColor(142, 202, 230), new JSColor(255, 183, 3), new JSColor(33, 158, 188), new JSColor(2, 48, 71), new JSColor(251, 133, 0)];
+        if (isCheck)
+        {
+            this.element.content = piece_symbol;
+            this.positionObject.text = Move.getPosition(move.TargetSquare);
+            this.positionObject.color = colors[2];
+        }else if (isCastle)
+        {
+            this.element.content = "";
+            this.positionObject.text = "0-0";
+            this.positionObject.color = colors[4];
+        }else
+        {
+            this.element.content = piece_symbol;
+            this.positionObject.text = Move.getPosition(move.TargetSquare);
+            this.positionObject.color = colors[0];
+        }
+        this.set = true;
+    }
+
+    remove()
+    {
+        this.set = false;
+        notation.text = "";
+        position.text = "";
+    }
+
+    deselect(color)
+    {
+        this.element.style.backgroundColor = color;
+    }
+    select(color)
+    {
+        this.element.style.backgroundColor = color;
     }
 }

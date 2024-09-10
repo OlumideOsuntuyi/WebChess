@@ -4,13 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chess</title>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="chessBoard.css">
+    <link rel="stylesheet" href="Stylesheets/matchInfo.css">
+    <link rel="stylesheet" href="Stylesheets/main.css">
 </head>
 <body>
+    <div class="nav-bar">
+        <a href= "#top" id="main-name" > Web Chess </a>
+        <nav>
+            <a href="#about-section" class="sections">Source Code</a>
+            <a href="#packages" class="sections">Other Games</a>
+            <a href="#personal-projects" class="sections">Personal Work</a>
+            <a href="https://olumideosuntuyi.github.io/Portfolio/main.html" class="sections">Portfolio</a>
+            <a href="https://github.com/OlumideOsuntuyi" target="_blank" rel="noopener noreferrer" class="sections">Github</a>
+            <input type="text" class="sections search-box" placeholder="Search...">
+        </nav>
+    </div>
     <div id="gameArea">
         <div id="chessboard"></div>
-    </div>
+        <div id="match-info">
+            <div class="player black">
+ 
+            </div>
+           <div id="match-moves">
+           </div>
+           <div class="player white">
 
+           </div>
+        </div>
+    </div>
     <script src="GameEngine/math.js"></script>
     <script src="GameEngine/engine.js"></script>
     <script src="GameEngine/object.js"></script>
