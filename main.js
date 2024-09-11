@@ -1,4 +1,9 @@
 const chessboard = document.getElementById('chessboard');
+
+chessboard.style.gridTemplateColumns = `repeat(8, ${Tile.squareWidth}em)`;
+chessboard.style.gridTemplateRows = `repeat(8, ${Tile.squareWidth}em)`;
+
+
 const gameDiv = document.getElementById('gameArea');
 const matchMoves = document.getElementById('match-moves');
 const pieces = {
@@ -48,16 +53,33 @@ function loop()
     let generator = new MoveGenerator();
     moves = generator.GenerateMoves(board);
     moveLength = generator.currMoveIndex;
-    boardSync.update();
 
+    let gameOver = generator.inDoubleCheck || moveLength <= 0;
+    reward.setActive(gameOver);
+
+    boardSync.update();
     if(!board.IsWhiteToMove && moveLength > 0)
     {
         onTargetedMoveFromMove(moves[JSMath.RandomRange(0, moveLength - 1)]);
     }
 }
 
+const reward = new ResultDisplay();
+reward.appendBody();
+reward.setActive(false);
+
+function undoMove()
+{
+    if(board.PlyCount > 0)
+    {
+        board.unmakeMove(board.AllGameMoves[board.PlyCount - 1]);
+        boardSync.update();
+    }
+}
 
 
 loop();
+//let loopInterval = setInterval(loop, 1000 * JSMath.RandomRange(5, 10));
 highlightMovesBasedOnSelected();
+
 
