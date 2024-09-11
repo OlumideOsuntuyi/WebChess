@@ -64,8 +64,9 @@ class MoveGenerator
     GenerateMoves(board, capturesOnly = false)
     {
         let moves = new Array(MoveGenerator.MaxMoves).fill(null);
-
-        this.OnGenerateMoves(board, moves, capturesOnly);
+        
+        moves = this.OnGenerateMoves(board, moves, capturesOnly);
+        console.log(moves);
         return moves;
     }
 
@@ -90,7 +91,7 @@ class MoveGenerator
 
         moves = moves.slice(0, this.currMoveIndex);
 
-        return moves.length;
+        return moves;
     }
 
     // Note, this will only return correct value after GenerateMoves() has been called in the current position
