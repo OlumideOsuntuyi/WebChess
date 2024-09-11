@@ -61,6 +61,7 @@ class JSObject
     constructor()
     {
         this.jsID = JSObject.ID();
+        this.unit = 'px';
 
         /** @type {HTMLElement} */
         this.element = null;
@@ -100,8 +101,8 @@ class JSObject
     updateElement()
     {
         this.element.style.position = 'absolute';
-        this.element.style.left = this.transform.Position.x + 'px';
-        this.element.style.top = -this.transform.Position.y + 'px';
+        this.element.style.left = this.transform.Position.x + this.unit;
+        this.element.style.top = -this.transform.Position.y + this.unit;
     }
 
     updateComponent()
@@ -128,6 +129,11 @@ class JSComponent
     {
         return this.jsObject.jsID;
     }
+    get unit(){return this.jsObject.unit;}; set unit(value = 'px'){this.jsObject.unit = value;}
+    get radius()
+    {
+        return this.element.style.borderRadius;
+    } set radius(value){this.element.style.borderRadius = value + this.unit;}
     get color()
     {
         return this.element.style.color;
@@ -159,6 +165,37 @@ class JSComponent
             this.element.style.backgroundColor = color;
         }
     }
+    
+    get size()
+    {
+        return this.transform.sizeDelta;
+    }
+
+    set size(jsVector = new JSVector())
+    {
+        this.transform.sizeDelta = jsVector;
+        this.element.style.width = jsVector.x + this.unit;
+        this.element.style.height = jsVector.y + this.unit;
+    }
+
+    get width() {return this.element.style.width;}
+    get halfWidth() 
+    {
+        const width = this.width;
+        const numericValue = parseFloat(width);
+        const unit = width.replace(numericValue, '');
+        const halfValue = numericValue / 2;
+        return halfValue + unit;
+    }
+
+    get padding() {return this.element.style.padding;}
+    set padding(value) {this.element.style.padding = value;}
+
+    get paddingWidth(){return this.element.style.paddingLeft + this.element.style.paddingRight;}
+    set paddingWidth(value) {this.element.style.paddingLeft = value; this.element.style.paddingRight = value;}
+
+    get paddingHeight(){return this.element.style.paddingTop + this.element.style.paddingBottom;}
+    set paddingHeight(value) {this.element.style.paddingTop = value; this.element.style.paddingBottom = value;}
 
     get transform()
     {
@@ -170,6 +207,11 @@ class JSComponent
         return this.jsObject.element;
     }
 
+    get elementSize()
+    {
+        return new JSVector(this.rect.width, this.rect.height);
+    }
+
     get rect()
     {
         return this.element.getBoundingClientRect();
@@ -177,24 +219,38 @@ class JSComponent
 
     get rectPosition()
     {
-        return new JSVector(rect.right, rect.top);
+        return new JSVector(this.rect.right, this.rect.top);
     }
 
     constructor()
     {
         this.jsObject = new JSObject();
         this.jsObject.component = this;
+        this.defaultDisplay = 'block';
     }
     
     addElement()
     {
         const element = document.createElement('div');
         this.jsObject.lockElement(element);
+        this.defaultDisplay = this.element.style.display;
+    }
+
+    appendBody()
+    {
+        document.body.appendChild(this.element);
+    }
+
+    appendElement(element)
+    {
+        element.appendChild(this.element);
     }
 
     appendToComponent(component = new JSComponent())
     {
+        this.transform.setParent(component.ID);
         component.element.appendChild(this.element);
+        this.defaultDisplay = this.element.style.display;
     }
 
     absolutePosition()
@@ -205,6 +261,32 @@ class JSComponent
     relativePosition()
     {
         this.element.style.position = 'relative';
+    }
+
+    staticPosition()
+    {
+        this.element.style.position = 'static';
+    }
+
+    setFlex(flexDirection = 'none', alignItems = 'none')
+    {
+        this.element.style.display = 'flex';
+        this.element.style.flexDirection = flexDirection;
+        this.element.style.alignItems = alignItems;
+        this.defaultDisplay = this.element.style.display;
+    }
+
+    justifyItems(value){this.element.style.justifyItems = value;}
+    justifyContent(value){this.element.style.justifyContent = value;}
+
+    setWidth(value)
+    {
+        this.element.style.width = value;
+    }
+
+    setActive(state = true)
+    {
+        this.element.style.display = state ? this.defaultDisplay : 'none';
     }
 
     update()
@@ -224,6 +306,8 @@ class JSText extends JSComponent
         this.element.textContent = string;
     }
 
+    get fontSize() {return this.element.style.fontSize;} set fontSize(value){this.element.style.fontSize = value;}
+
     constructor(parentID = 0)
     {
         super();
@@ -233,12 +317,45 @@ class JSText extends JSComponent
         this.element.style.zIndex = 1000;
 
         gameDiv.appendChild(this.element);
-
-        this.element.style.position = 'absolute';
-        this.color = new JSColor(0, 0, 0).toString();
         this.jsObject.transform.setParent(parentID);
     }
 
+    autoWidth()
+    {
+        this.element.style.width = 'auto';
+    }
+
+}
+
+class JSImage extends JSComponent
+{
+    get backgroundImage()
+    {
+        return this.element.src;
+    }
+
+    set backgroundImage(url)
+    {
+        this.element.src = url;
+    }
+
+    constructor()
+    {
+        super();
+        const element = document.createElement('img');
+        element.alt = '';
+        this.jsObject.lockElement(element);
+        this.size = new JSObject(50, 50);
+    }
+
+    setAspect()
+    {
+        let size = this.size;
+        let min = Math.min(size.x, size.y);
+        size.set(min, min);
+        this.size = size;
+        this.element.style.aspectRatio = 1;
+    }
 }
 
 class JSList extends JSComponent
@@ -289,4 +406,33 @@ class JSPadding
 {
     top = 0; left = 0; right = 0; bottom = 0;
     constructor(top = 0, left = 0, right = 0, bottom = 0){this.top = top; this.left = left; this.right = right; this.bottom = bottom;}
+}
+
+class JSButton extends JSComponent
+{
+    get action(){return this.element.action};
+    set action(value = function(){})
+    {
+        this.element.addEventListener('click', value);
+    }
+
+    get label()
+    {
+        return this.element.textContent;
+    }
+    set label(string)
+    {
+        this.element.textContent = string;
+    }
+
+    get fontSize() {return this.element.style.fontSize;} set fontSize(value){this.element.style.fontSize = value;}
+
+    constructor()
+    {
+        super();
+        const element = document.createElement('div');
+        this.jsObject.lockElement(element);
+        this.element.className = 'jsButton';
+        this.element.style.zIndex = 900;
+    }
 }

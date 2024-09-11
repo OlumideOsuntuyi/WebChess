@@ -1,16 +1,11 @@
-body {
-    font-size: 1vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
+#gameArea-top
+{
+    padding: 1em;
+    margin-top: 3em;
 }
 
 #gameArea
 {
-    font-size: 1vw;
     position: relative;
     height: max(40em, 400px);
     display: flex;
@@ -25,8 +20,6 @@ body {
 {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(8, max(5em, 50px));
-    grid-template-rows: repeat(8, max(5em, 50px));
 }
 
 .square 

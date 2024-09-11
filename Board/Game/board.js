@@ -437,29 +437,29 @@ class Board
     }
 
     
-    unmakeMove(move, inSearch = false) {
+    unmakeMove(move = new Move(), inSearch = false) {
         // Swap colour to move
         this.IsWhiteToMove = !this.IsWhiteToMove;
 
         let undoingWhiteMove = this.IsWhiteToMove;
 
         // Get move info
-        let movedFrom = move.startSquare;
-        let movedTo = move.targetSquare;
-        let moveFlag = move.moveFlag;
+        let movedFrom = move.StartSquare;
+        let movedTo = move.TargetSquare;
+        let moveFlag = move.MoveFlag;
 
         let undoingEnPassant = moveFlag === Move.EnPassantCaptureFlag;
-        let undoingPromotion = move.isPromotion;
+        let undoingPromotion = move.IsPromotion();
         let undoingCapture = this.CurrentGameState.capturedPieceType !== Piece.None;
 
-        let movedPiece = undoingPromotion ? Piece.makePiece(Piece.Pawn, this.moveColour) : this.Square[movedTo];
+        let movedPiece = undoingPromotion ? Piece.makePiece(Piece.Pawn, this.MoveColour) : this.Square[movedTo];
         let movedPieceType = Piece.pieceType(movedPiece);
         let capturedPieceType = this.CurrentGameState.capturedPieceType;
 
         // If undoing promotion, then remove piece from promotion square and replace with pawn
         if (undoingPromotion) {
             let promotedPiece = this.Square[movedTo];
-            let pawnPiece = Piece.makePiece(Piece.Pawn, this.moveColour);
+            let pawnPiece = Piece.makePiece(Piece.Pawn, this.MoveColour);
             this.TotalPieceCountWithoutPawnsAndKings--;
 
             this.allPieceLists[promotedPiece].removePieceAtSquare(movedTo);
@@ -473,7 +473,7 @@ class Board
         // Undo capture
         if (undoingCapture) {
             let captureSquare = movedTo;
-            let capturedPiece = Piece.makePiece(capturedPieceType, this.opponentColour);
+            let capturedPiece = Piece.makePiece(capturedPieceType, this.OpponentColour);
 
             if (undoingEnPassant) {
                 captureSquare = movedTo + (undoingWhiteMove ? -8 : 8);
@@ -495,14 +495,14 @@ class Board
 
             // Undo castling
             if (moveFlag === Move.CastleFlag) {
-                let rookPiece = Piece.makePiece(Piece.Rook, this.moveColour);
+                let rookPiece = Piece.makePiece(Piece.Rook, this.MoveColour);
                 let kingside = movedTo === BoardHelper.g1 || movedTo === BoardHelper.g8;
                 let rookSquareBeforeCastling = kingside ? movedTo + 1 : movedTo - 2;
                 let rookSquareAfterCastling = kingside ? movedTo - 1 : movedTo + 1;
 
                 // Undo castling by returning rook to original square
                 this.PieceBitboards[rookPiece] = BitBoardUtility.ToggleSquares(this.PieceBitboards[rookPiece], rookSquareAfterCastling, rookSquareBeforeCastling);
-                this.ColourBitboards[this.MoveColourIndex] = BitBoardUtility.ToggleSquares(this.ColourBitboards[this.moveColourIndex], rookSquareAfterCastling, rookSquareBeforeCastling);
+                this.ColourBitboards[this.MoveColourIndex] = BitBoardUtility.ToggleSquares(this.ColourBitboards[this.MoveColourIndex], rookSquareAfterCastling, rookSquareBeforeCastling);
                 this.Square[rookSquareAfterCastling] = Piece.None;
                 this.Square[rookSquareBeforeCastling] = rookPiece;
                 this.allPieceLists[rookPiece].movePiece(rookSquareAfterCastling, rookSquareBeforeCastling);
@@ -735,15 +735,18 @@ class Board
         return board;
     }
 
-    static createBoardFromSource(source) {
+    static createBoardFromSource(source = new Board()) {
         let board = new Board();
-        board.loadPosition(source.StartPositionInfo);
-
-        for (let i = 0; i < source.AllGameMoves.length; i++) {
-            board.makeMove(source.AllGameMoves[i]);
+        if(source.PlyCount > 0)
+        {
+            board.loadPosition(source.StartPositionInfo.fen);
+    
+            for (let i = 0; i < source.AllGameMoves.length; i++) {
+                board.makeMove(source.AllGameMoves[i]);
+            }
+        }else{
+            board.loadStartPosition();
         }
         return board;
     }
-
-
 }

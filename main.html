@@ -20,17 +20,20 @@
             <input type="text" class="sections search-box" placeholder="Search...">
         </nav>
     </div>
+    <div id="gameArea-top"></div>
     <div id="gameArea">
         <div id="chessboard"></div>
         <div id="match-info">
-            <div class="player black">
+            <div id="player-black"class="player">
  
             </div>
-           <div id="match-moves">
-           </div>
-           <div class="player white">
+           <div id="match-moves"></div>
+           <div id="player-white" class="player">
 
            </div>
+           <button onclick="undoMove()">
+            Undo Move
+           </button>
         </div>
     </div>
     <script src="GameEngine/math.js"></script>
