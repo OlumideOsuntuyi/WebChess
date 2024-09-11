@@ -349,11 +349,10 @@ class BitBoardUtility
 }
 
 class PositionInfo {
-    constructor(fen) {
+    constructor(fen = "") {
         this.fen = fen;
         this.squares = new Array(64).fill(0);
-
-        const sections = fen.split(' ');
+        const sections = fen.split(" ");
 
         let file = 0;
         let rank = 7;
