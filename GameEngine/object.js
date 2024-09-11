@@ -436,3 +436,35 @@ class JSButton extends JSComponent
         this.element.style.zIndex = 900;
     }
 }
+
+class JSStopwatch
+{
+    constructor()
+    {
+        this.startTime = 0;
+        this.endTime = 0;
+        this.isStarted = false;
+        this.isFinished = false;
+    }
+
+    get ElapsedMilliseconds()
+    {
+        if(!this.isStarted) {return 0;}
+        if(!this.isFinished){return Date.now() - this.startTime;}
+        return this.endTime - this.startTime;
+    }
+
+    start()
+    {
+        this.startTime = Date.now();
+        this.endTime = 0;
+        this.isStarted = true;
+        this.isFinished = false;
+    }
+
+    stop()
+    {
+        this.endTime = Date.now();
+        this.isFinished = true;
+    }
+}
