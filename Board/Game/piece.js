@@ -114,9 +114,9 @@ class PieceList
         this.numPieces = 0;
     }
 
-    get maxCount()
+    get Count()
     {
-        return numPieces;
+        return this.numPieces;
     }
 
     //square = int
@@ -145,7 +145,7 @@ class PieceList
 
     get(index)
     {
-        this.occupiedSquares[index];
+        return this.occupiedSquares[index];
     }
 
 }
