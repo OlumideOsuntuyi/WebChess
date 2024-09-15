@@ -93,7 +93,7 @@ class TilePiece extends JSImage
 
     moveTowards()
     {
-        let position = this.jsObject.transform.localPosition;
+        let position = this.transform.LocalPosition;
         let squarePosition = this.squarePosition;
         let distance = JSVector.distance(position, squarePosition);
 
@@ -102,7 +102,7 @@ class TilePiece extends JSImage
 
         let speed = Time.deltaTime * (distance / 0.3);
         vector.multiplySelf(speed);
-        position.addSelf(vector);
+        this.transform.LocalPosition = position.add(vector);
 
         distance = JSVector.distance(position, squarePosition);
         if(distance < 0.1)
@@ -205,16 +205,14 @@ class Tile extends JSComponent
     }
 }
 
-class BoardSync
+class BoardSync extends JSComponent
 {
     ALL_TILES = {};
     MOVES = [];
 
     constructor(board = new Board())
     {
-        this.jsObject = new JSObject();
-        this.jsObject.component = this;
-
+        super();
         this.board = board;
         this.cloneBoard = Board.createBoardFromSource(board);
         this.ply = 0;
@@ -256,6 +254,10 @@ class BoardSync
 
     update()
     {
+        if(!this.board.PlyCount > 0)
+        {
+            return;
+        }
         this.FenText.text = `FEN : ${this.board.CurrentFEN}`;
 
         let currentPly = this.board.PlyCount;
