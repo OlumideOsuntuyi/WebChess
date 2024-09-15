@@ -468,3 +468,42 @@ class JSStopwatch
         this.isFinished = true;
     }
 }
+
+class JSProgressBar extends JSComponent
+{
+    constructor()
+    {
+        super();
+        this.addElement();
+        this.appendElement(gameDiv);
+        this.absolutePosition();
+        this.backgroundColor = new JSColor(60, 40, 50);
+        this.unit = 'em';
+        this.size = new JSVector(2, 40);
+        this.element.style.overflow = 'none';
+        this.element.style.alignSelf = 'center';
+        this.radius = 1 + 'em';
+        this.transform.LocalPosition = new JSVector(-2.5, 0);
+
+        this.bar = new JSComponent();
+        this.bar.addElement();
+        this.bar.appendToComponent(this);
+        this.bar.unit = '%';
+        this.bar.size = new JSVector(100, 100);
+        this.bar.backgroundColor = new JSColor(0, 0, 0);
+
+            this.bubble = new JSComponent();
+            this.bubble.addElement();
+            this.bubble.appendToComponent(this.bar);
+            this.bubble.unit = '%';
+            this.bubble.size = new JSVector(100, 80);
+            this.bubble.backgroundColor = new JSColor(200, 200, 200);
+
+    }
+
+    set percent(value)
+    {
+        value = JSMath.clamp(value, 0, 1);
+        this.bubble.size = new JSVector(this.bubble.size.x, value * 100);
+    }
+}
