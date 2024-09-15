@@ -66,7 +66,6 @@ class MoveGenerator
         let moves = new Array(MoveGenerator.MaxMoves).fill(null);
         
         moves = this.OnGenerateMoves(board, moves, capturesOnly);
-        console.log(moves);
         return moves;
     }
 
@@ -408,7 +407,7 @@ class MoveGenerator
 
             if (BitBoardUtility.ContainsSquare(this.checkRayBitmask, capturedPawnSquare))
             {
-                let pawnsThatCanCaptureEp = pawns & BitBoardUtility.PawnAttacks(1n << targetSquare, !this.board.IsWhiteToMove);
+                let pawnsThatCanCaptureEp = pawns & BitBoardUtility.PawnAttacks(1n << BigInt(targetSquare), !this.board.IsWhiteToMove);
 
                 while (pawnsThatCanCaptureEp != 0n)
                 {
@@ -621,8 +620,8 @@ class MoveGenerator
 
         if (enemyOrtho != 0n)
         {
-            let maskedBlockers = (this.allPieces ^ (1n << epCaptureSquare | 1n << startSquare | 1n << targetSquare));
-            let rookAttacks = Magic.GetRookAttacks(friendlyKingSquare, maskedBlockers);
+            let maskedBlockers = (this.allPieces ^ (1n << BigInt(epCaptureSquare) | 1n << BigInt(startSquare) | 1n << BigInt(targetSquare)));
+            let rookAttacks = Magic.GetRookAttacks(this.friendlyKingSquare, maskedBlockers);
             return (rookAttacks & enemyOrtho) != 0;
         }
 
