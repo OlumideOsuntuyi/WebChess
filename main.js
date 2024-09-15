@@ -3,7 +3,6 @@ const chessboard = document.getElementById('chessboard');
 chessboard.style.gridTemplateColumns = `repeat(8, ${Tile.squareWidth}em)`;
 chessboard.style.gridTemplateRows = `repeat(8, ${Tile.squareWidth}em)`;
 
-
 const gameDiv = document.getElementById('gameArea');
 const matchMoves = document.getElementById('match-moves');
 const pieces = {
@@ -22,7 +21,14 @@ const SQUARE_SIZE = 60;
 let board = new Board();
 board.loadStartPosition();
 
+let mainEval = new Evaluation();
 let boardSync = new BoardSync(board);
+
+const reward = new ResultDisplay();
+reward.appendBody();
+reward.setActive(false);
+
+const evaluationBar = new JSProgressBar();
 
 let selectedPiece;
 let selectedSquare;
@@ -36,14 +42,9 @@ function placePieceInSquare(piece, square)
 
     let colour = Piece.pieceColor(pieceID);
     let type = Piece.pieceType(pieceID);
-
-
 }
 
 let engineInterval = setInterval(GameEngine.Update, 33.33);
-
-// createBoard();
-console.log(board.CurrentFEN);
 
 let moves = [new Move()];
 let moveLength = 0;
@@ -51,35 +52,45 @@ let moveLength = 0;
 function loop()
 {
     let generator = new MoveGenerator();
+    generator.promotionsToGenerate = PromotionMode.All;
     moves = generator.GenerateMoves(board);
     moveLength = generator.currMoveIndex;
 
     let gameOver = generator.inDoubleCheck || moveLength <= 0;
     reward.setActive(gameOver);
 
-    boardSync.update();
-    if(!board.IsWhiteToMove && moveLength > 0)
-    {
-        onTargetedMoveFromMove(moves[JSMath.RandomRange(0, moveLength - 1)]);
-    }
-}
+    let evaluation = mainEval.evaluate(board);
+    evaluationBar.percent = (100 + evaluation) / 200.0;
 
-const reward = new ResultDisplay();
-reward.appendBody();
-reward.setActive(false);
+    if(!board.IsWhiteToMove)
+    {
+        let searcher = new SearchAlgorithm(Board.createBoardFromSource(board), true);
+        searcher.startSearch();
+        console.log(searcher.bestMove);
+        onTargetedMoveFromMove(searcher.bestMove);
+    }
+
+}
 
 function undoMove()
 {
     if(board.PlyCount > 0)
     {
         board.unmakeMove(board.AllGameMoves[board.PlyCount - 1]);
-        boardSync.update();
     }
 }
 
-
 loop();
-//let loopInterval = setInterval(loop, 1000 * JSMath.RandomRange(5, 10));
 highlightMovesBasedOnSelected();
 
+/*
+const worker = new Worker('Board\\Game\\Threaded\\worker.js');
+worker.postMessage({value: board});
+worker.onmessage = function(event)
+{
+    const search = event.data;
+    onTargetedMoveFromMove(search.bestMove);
+};
+
+*/
 
