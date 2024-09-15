@@ -224,7 +224,7 @@ class Board
         return this.IsWhiteToMove ? Board.BlackIndex : Board.WhiteIndex;
     }
     // List of (hashed) positions since last pawn move or capture (for detecting repetitions)
-    RepetitionPositionHistory = new Stack();
+    RepetitionPositionHistory = new StackList();
 
     // Total plies (half-moves) played in game
     PlyCount = 0;
@@ -252,6 +252,7 @@ class Board
 
     constructor() {
         this.Square = new Array(64).fill(0);
+        this.RepetitionPositionHistory = new StackList();
     }
 
     makeMove(move = new Move(), inSearch = false)
@@ -284,7 +285,7 @@ class Board
     
             if (isEnPassant)
             {
-                captureSquare = targetSquare + (IsWhiteToMove ? -8 : 8);
+                captureSquare = targetSquare + (this.IsWhiteToMove ? -8 : 8);
                 this.Square[captureSquare] = Piece.None;
             }
             if (capturedPieceType != Piece.Pawn)
@@ -317,12 +318,12 @@ class Board
                 // Update rook position
                 this.PieceBitboards[rookPiece] = BitBoardUtility.ToggleSquares(this.PieceBitboards[rookPiece], castlingRookFromIndex, castlingRookToIndex);
                 this.ColourBitboards[this.MoveColourIndex] = BitBoardUtility.ToggleSquares(this.ColourBitboards[this.MoveColourIndex], castlingRookFromIndex, castlingRookToIndex);
-                this.allPieceLists[rookPiece].MovePiece(castlingRookFromIndex, castlingRookToIndex);
+                this.allPieceLists[rookPiece].movePiece(castlingRookFromIndex, castlingRookToIndex);
                 this.Square[castlingRookFromIndex] = Piece.None;
                 this.Square[castlingRookToIndex] = Piece.Rook | this.MoveColour;
     
-                newZobristKey ^= Zobrist.piecesArray[rookPiece, castlingRookFromIndex];
-                newZobristKey ^= Zobrist.piecesArray[rookPiece, castlingRookToIndex];
+                newZobristKey ^= Zobrist.piecesArray[rookPiece][castlingRookFromIndex];
+                newZobristKey ^= Zobrist.piecesArray[rookPiece][castlingRookToIndex];
             }
         }
     
@@ -349,7 +350,7 @@ class Board
                     break;
             }
     
-            let promotionPiece = Piece.MakePiece(promotionPieceType, this.MoveColour);
+            let promotionPiece = Piece.makePiece(promotionPieceType, this.MoveColour);
     
             // Remove pawn from promotion square and add promoted piece instead
 
@@ -357,8 +358,8 @@ class Board
             this.PieceBitboards[movedPiece] = BitBoardUtility.ToggleSquare(this.PieceBitboards[movedPiece], targetSquare);
             this.PieceBitboards[promotionPiece] = BitBoardUtility.ToggleSquare(this.PieceBitboards[promotionPiece], targetSquare);
 
-            this.allPieceLists[movedPiece].RemovePieceAtSquare(targetSquare);
-            this.allPieceLists[promotionPiece].AddPieceAtSquare(targetSquare);
+            this.allPieceLists[movedPiece].removePieceAtSquare(targetSquare);
+            this.allPieceLists[promotionPiece].addPieceAtSquare(targetSquare);
             this.Square[targetSquare] = promotionPiece;
         }
     
@@ -419,7 +420,7 @@ class Board
         {
             if (!inSearch)
             {
-                this.RepetitionPositionHistory = [];
+                this.RepetitionPositionHistory.clear();
             }
             newFiftyMoveCounter = 0;
         }
@@ -690,7 +691,7 @@ class Board
         // TODO: Check for error
         this.Square.fill(0);
     
-        this.RepetitionPositionHistory = [];
+        this.RepetitionPositionHistory = new StackList();
         this.gameStateHistory = [];
     
         this.CurrentGameState = new GameState();
