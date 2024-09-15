@@ -97,7 +97,7 @@ class BoardHelper {
         return squareIndex & 0b000111;
     }
 
-    static IndexFromCoord(fileIndex, rankIndex) {
+    static IndexFromCoordIndices(fileIndex, rankIndex) {
         return rankIndex * 8 + fileIndex;
     }
 
@@ -134,11 +134,11 @@ class BoardHelper {
     }
 
     static SquareIndexFromName(name) {
-        const fileName = name[0];
-        const rankName = name[1];
-        const fileIndex = BoardHelper.fileNames.indexOf(fileName);
-        const rankIndex = BoardHelper.rankNames.indexOf(rankName);
-        return BoardHelper.IndexFromCoord(fileIndex, rankIndex);
+        let fileName = name[0];
+        let rankName = name[1];
+        let fileIndex = BoardHelper.fileNames.indexOf(fileName);
+        let rankIndex = BoardHelper.rankNames.indexOf(rankName);
+        return BoardHelper.IndexFromCoordIndices(fileIndex, rankIndex);
     }
 
     static IsValidCoordinate(x, y) {
@@ -152,17 +152,17 @@ class BoardHelper {
 
     static CreateDiagram(board, blackAtTop = true, includeFen = true, includeZobristKey = true) {
         let result = [];
-        const lastMoveSquare = board.AllGameMoves.length > 0 ? board.AllGameMoves[board.AllGameMoves.length - 1].TargetSquare : -1;
+        let lastMoveSquare = board.AllGameMoves.length > 0 ? board.AllGameMoves[board.AllGameMoves.length - 1].TargetSquare : -1;
 
         for (let y = 0; y < 8; y++) {
-            const rankIndex = blackAtTop ? 7 - y : y;
+            let rankIndex = blackAtTop ? 7 - y : y;
             result.push("+---+---+---+---+---+---+---+---+");
 
             for (let x = 0; x < 8; x++) {
-                const fileIndex = blackAtTop ? x : 7 - x;
-                const squareIndex = BoardHelper.IndexFromCoord(fileIndex, rankIndex);
-                const highlight = squareIndex === lastMoveSquare;
-                const piece = board.Square[squareIndex];
+                let fileIndex = blackAtTop ? x : 7 - x;
+                let squareIndex = BoardHelper.IndexFromCoordIndices(fileIndex, rankIndex);
+                let highlight = squareIndex === lastMoveSquare;
+                let piece = board.Square[squareIndex];
                 if (highlight) {
                     result.push(`|(${Piece.GetSymbol(piece)})`);
                 } else {
@@ -1087,7 +1087,7 @@ class Magic {
 
 Magic.initialize();
 
-class Stack {
+class StackList {
     constructor() {
         this.items = [];
     }
