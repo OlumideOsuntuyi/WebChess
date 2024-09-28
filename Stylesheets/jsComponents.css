@@ -1,0 +1,16 @@
+.jsButton
+{
+    border: 2px none;
+    cursor: pointer;
+    transition: all 0.3s ease; 
+}
+
+.jsButton:hover
+{
+    border: 0.1em solid;
+}
+
+.jsButton:active 
+{
+    transform: translateY(20px);
+}
