@@ -208,6 +208,8 @@ class Tile extends JSComponent
 class BoardSync extends JSComponent
 {
     ALL_TILES = {};
+
+    /** @type {MoveSet[]} */
     MOVES = [];
 
     constructor(board = new Board())
@@ -223,7 +225,6 @@ class BoardSync extends JSComponent
 
         this.blackPlayer = new PlayerInfo('black');
         this.blackPlayer.transform.setParent(this.jsObject.transform);
-
 
         this.FenDisplay = new JSComponent();
         this.FenDisplay.addElement();
@@ -276,8 +277,10 @@ class BoardSync extends JSComponent
         }
     }
 
-    resetAll()
+    resetBoard(board)
     {
+        this.board = board;
+        this.cloneBoard = Board.createBoardFromSource(board);
         let pieceMap = {};
         for (let square = 0; square < 64; square++) 
         {
@@ -288,8 +291,13 @@ class BoardSync extends JSComponent
 
         for (let square = 0; square < 64; square++) 
         {
-            tile.piece = pieceMap[square];
+            this.ALL_TILES[square].piece = pieceMap[square];
         }
+        this.ply = 0;
+
+        this.MOVES.forEach(element => {
+            element.destroyElement();
+        });
     }
 
     makeMove(movePlayed = new Move())
@@ -412,6 +420,14 @@ class MoveSet extends JSComponent
         }
     }
 
+    destroyElement()
+    {
+        this.index.destroyElement();
+        this.white.destroyElement();
+        this.black.destroyElement();
+        super.destroyElement();
+    }
+
 }
 
 class PlayedMove extends JSComponent
@@ -449,6 +465,13 @@ class PlayedMove extends JSComponent
         this.positionObject.transform.LocalPosition = new JSVector(25, -5);
         this.positionObject.absolutePosition();
 
+    }
+
+    destroyElement()
+    {
+        this.notationObject.destroyElement();
+        this.positionObject.destroyElement();
+        super.destroyElement();
     }
 
     update()
@@ -554,11 +577,15 @@ class ResultDisplay extends JSComponent
         this.appendBody();
         this.absolutePosition();
         this.setFlex('column', 'center');
-        this.backgroundColor = new JSColor(40, 40, 40);
+        this.backgroundColor = new JSColor(20, 20, 20);
         this.radius = 0.25;
         this.size = new JSVector(20, 20);
         this.element.style.zIndex = 1000;
         this.element.style.overflow = 'none';
+        this.width = "auto";
+        this.height = "auto";
+        this.paddingHeight = '0.5em';
+        this.element.style.borderRadius = '0.5em';
 
         //top layout
         this.topLayout = new JSComponent();
@@ -591,18 +618,20 @@ class ResultDisplay extends JSComponent
         this.bodyLayout.unit = 'em';
         this.bodyLayout.addElement();
         this.bodyLayout.appendToComponent(this);
-        this.bodyLayout.size = new JSVector(20, 18);
+        this.bodyLayout.size = new JSVector(20, 15);
+        this.bodyLayout.width = "auto";
+        this.bodyLayout.height = "auto";
         this.bodyLayout.setFlex('column', 'center');
-        this.bodyLayout.justifyContent('flex-start');
+        this.bodyLayout.justifyContent('center');
 
             this.playerArea = new JSComponent();
             this.playerArea.unit = 'em';
             this.playerArea.addElement();
             this.playerArea.appendToComponent(this.bodyLayout);
-            this.playerArea.setFlex('row', 'center');
-            this.playerArea.justifyContent('flex-start');
-            this.playerArea.element.style.width = 'auto';
-            this.playerArea.element.style.height = 10 + 'em';
+            this.playerArea.setFlex('row', 'flex-start');
+            this.playerArea.justifyContent('center');
+            this.playerArea.width = 'auto';
+            this.playerArea.height = 'auto';
             this.playerArea.element.style.gap = 2 + 'em';
 
                 this.playerWhiteArea = new JSComponent();
@@ -674,17 +703,19 @@ class ResultDisplay extends JSComponent
             this.bottomButtons = new JSComponent();
             this.bottomButtons.addElement();
             this.bottomButtons.appendToComponent(this.bodyLayout);
-            this.bottomButtons.absolutePosition();
+            // this.bottomButtons.absolutePosition();
             this.bottomButtons.setFlex('column', 'center');
             this.bottomButtons.justifyContent('center');
-            this.bottomButtons.element.style.bottom = 0;
-            this.bottomButtons.element.style.width = '15em';
+            // this.bottomButtons.element.style.bottom = 0;
+            this.bottomButtons.element.style.width = 'auto';
             this.bottomButtons.element.style.height = 'auto';
             this.bottomButtons.paddingWidth = '1em';
             this.bottomButtons.element.style.gap = '0.5em';
             this.bottomButtons.paddingHeight = '0.5em';
 
                 this.rematchButton = new JSButton();
+                this.rematchButton.functionList.push(resetGame);
+
                 this.rematchButton.unit = 'em';
                 this.rematchButton.radius = 0.25;
                 this.rematchButton.label = "Rematch Now";
@@ -692,7 +723,7 @@ class ResultDisplay extends JSComponent
                 this.rematchButton.fontSize = 1;
                 this.rematchButton.setFlex('none', 'center');
                 this.rematchButton.justifyContent('center');
-                this.rematchButton.size = new JSVector(15, 2);
+                this.rematchButton.size = new JSVector(15, 2.15);
                 this.rematchButton.appendToComponent(this.bottomButtons);
                 this.rematchButton.backgroundColor = new JSColor(80, 120, 200);
                 this.rematchButton.element.style.boxShadow = `${0.0 + 'em'} ${0.1 + 'em'} ${0.25 + 'em'} ${new JSColor(30, 100, 200)}`;
@@ -733,5 +764,33 @@ class ResultDisplay extends JSComponent
                     this.analysisButton.appendToComponent(this.bottom2ButtonLayout);
                     this.analysisButton.backgroundColor = new JSColor(80, 80, 80);
                     this.analysisButton.element.style.boxShadow = `${0.0 + 'em'} ${0.1 + 'em'} ${0.25 + 'em'} ${new JSColor(80, 80, 80)}`;
+    }
+
+    showResult(board = new Board(), moves = [])
+    {
+        const winnerColor = new JSColor(80, 200, 20);
+        const loserColor = new JSColor(255, 255, 255);
+
+        let whitePlayerName = "White";
+        let blackPlayerName = "Black";
+
+        let isCheck = board.isInCheck();
+        let canMove = moves.length > 0;
+
+        let isCheckMate = isCheck && !canMove;
+        let isStaleMate = !isCheck && !canMove;
+        let isResign = !isCheckMate && !isStaleMate;
+        let winner = isStaleMate ? "" : board.IsWhiteToMove ? blackPlayerName : whitePlayerName;
+
+        if(isCheckMate)
+        {
+            this.resultText.text = `${winner} won by Checkmate`;
+        }
+        else if(isStaleMate)
+        {
+            this.resultText.text = `$Draw by stalemate`;
+        }
+        this.playerWhiteArea.element.style.borderColor = winner == whitePlayerName ? winnerColor : loserColor;
+        this.playerBlackArea.element.style.borderColor = winner == blackPlayerName ? winnerColor : loserColor;
     }
 }
