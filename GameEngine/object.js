@@ -44,6 +44,7 @@ class JSTransform
 class JSObject
 {
     static objects = {};
+    static deletionQueue = {};
     static ID()
     {
         let id;
@@ -56,6 +57,11 @@ class JSObject
     static Get(id)
     {
         return JSObject.objects[id];
+    }
+
+    static Delete(jsObject)
+    {
+        this.deletionQueue[jsObject.jsID] = jsObject;
     }
 
     constructor()
@@ -179,6 +185,11 @@ class JSComponent
     }
 
     get width() {return this.element.style.width;}
+    set width(value){this.element.style.width = value;}
+
+    get height(){return this.element.style.height;}
+    set height(value){this.element.style.height = value;}
+
     get halfWidth() 
     {
         const width = this.width;
@@ -236,6 +247,11 @@ class JSComponent
         this.defaultDisplay = this.element.style.display;
     }
 
+    destroyElement()
+    {
+        this.jsObject.destroyElement();
+    }
+
     appendBody()
     {
         document.body.appendChild(this.element);
@@ -287,6 +303,11 @@ class JSComponent
     setActive(state = true)
     {
         this.element.style.display = state ? this.defaultDisplay : 'none';
+    }
+
+    stopPointerEvents()
+    {
+        this.element.style.pointerEvents = 'none';
     }
 
     update()
@@ -434,6 +455,13 @@ class JSButton extends JSComponent
         this.jsObject.lockElement(element);
         this.element.className = 'jsButton';
         this.element.style.zIndex = 900;
+        this.functionList = [];
+        this.element.addEventListener('click', () => 
+        {
+            this.functionList.forEach(element => {
+                element();
+            });
+        });
     }
 }
 
