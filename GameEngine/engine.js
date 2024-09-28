@@ -41,5 +41,12 @@ class GameEngine
         {
             element.update();
         });
+
+        Object.values(JSObject.deletionQueue).forEach(element => 
+        {
+            delete JSObject.objects[element];
+        });
+
+        JSObject.deletionQueue = {};
     }
 }
