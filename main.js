@@ -21,8 +21,9 @@ const SQUARE_SIZE = 60;
 let board = new Board();
 board.loadStartPosition();
 
-let mainEval = new Evaluation();
+let generator = new MoveGenerator();
 let boardSync = new BoardSync(board);
+let mainEval = new Evaluation();
 
 const reward = new ResultDisplay();
 reward.appendBody();
@@ -51,23 +52,26 @@ let moveLength = 0;
 
 function loop()
 {
-    let generator = new MoveGenerator();
     generator.promotionsToGenerate = PromotionMode.All;
     moves = generator.GenerateMoves(board);
     moveLength = generator.currMoveIndex;
 
     let gameOver = generator.inDoubleCheck || moveLength <= 0;
+    if(gameOver)
+    {
+        reward.showResult(board, moves);
+    }
     reward.setActive(gameOver);
 
-    let evaluation = mainEval.evaluate(board);
+    let evaluation = mainEval.evaluate(Board.createBoardFromSource(board));
     evaluationBar.percent = (100 + evaluation) / 200.0;
 
     if(!board.IsWhiteToMove)
     {
-        let searcher = new SearchAlgorithm(Board.createBoardFromSource(board), true);
-        searcher.startSearch();
-        console.log(searcher.bestMove);
-        onTargetedMoveFromMove(searcher.bestMove);
+        //let searcher = new SearchAlgorithm(Board.createBoardFromSource(board), true);
+        //searcher.startSearch();
+        //console.log(searcher.bestMove);
+        //onTargetedMoveFromMove(searcher.bestMove);
     }
 
 }
@@ -78,6 +82,15 @@ function undoMove()
     {
         board.unmakeMove(board.AllGameMoves[board.PlyCount - 1]);
     }
+}
+
+function resetGame()
+{
+    board = new Board();
+    board.loadStartPosition();
+    boardSync.resetBoard(board);
+    reward.setActive(false);
+    loop();
 }
 
 loop();
